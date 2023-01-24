@@ -16,6 +16,7 @@ variable "prefix"{
     default = "ct"
 }
 
+#resource group 
 resource "azurerm_resource_group" "my-resource-group" {
   name     = "${var.prefix}-resources"
   location = "West US"

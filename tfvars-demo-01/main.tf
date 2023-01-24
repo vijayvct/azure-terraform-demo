@@ -12,21 +12,19 @@ provider "azurerm" {
   features{}
 }
 
-
-
 resource "azurerm_resource_group" "my-resource-group" {
-  name     = "${var.prefix}-resources"
-  location = "West US"
+  name     = "${var.prefix}-${var.resource_group_name}"
+  location = var.location
 }
 
 resource "azurerm_network_security_group" "my-nsg" {
-  name                = "${var.prefix}-security-group"
+  name                = "${var.prefix}-${var.nsg}"
   location            = azurerm_resource_group.my-resource-group.location
   resource_group_name = azurerm_resource_group.my-resource-group.name
 }
 
 resource "azurerm_virtual_network" "my-vnet" {
-  name                = "${var.prefix}-network"
+  name                = "${var.prefix}-${var.vnet}"
   location            = azurerm_resource_group.my-resource-group.location
   resource_group_name = azurerm_resource_group.my-resource-group.name
   address_space       = ["10.0.0.0/16"]
@@ -44,7 +42,7 @@ resource "azurerm_virtual_network" "my-vnet" {
   }
 
   tags = {
-    environment = "Production"
+    environment = var.environment
   }
 }
 
