@@ -9,7 +9,14 @@ terraform {
 }
 
 provider azurerm{
-    features {   
+    features { 
+      virtual_machine {
+        delete_os_disk_on_deletion = true
+      }
+
+      resource_group {
+        prevent_deletion_if_contains_resources = false
+      }
     }
 }
 
@@ -74,7 +81,7 @@ resource "azurerm_virtual_machine" "main" {
     managed_disk_type = "Standard_LRS"
   }
   os_profile {
-    computer_name  = "hostname"
+    computer_name  = "mylinuxvm"
     admin_username = "testadmin"
     admin_password = "Password1234!"
   }
