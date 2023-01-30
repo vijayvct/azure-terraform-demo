@@ -1,0 +1,290 @@
+Terraform 
+---------
+
+Traditional way of managing infrastructure 
+
+E-Commerece 
+
+Dev -> QA -> Staging -> Production ->Disaster Recovery
+
+An admin will manually create the required infrastructure to the run the application 
+
+Time Consuming 
+Many problems may arise at many places 
+Scalibilty 
+
+Infrastructre as Code 
+---------------------
+Infrastructre as Code (IaC) tools allows you to manage infrastructure with configuration files rather than through a GUI.
+IaC allows you to build, change and manage your infrastructure in a safe , consistent and repeatable way be defining resource configurations that you can version, reuse amd share
+
+AWS - Cloud Formation (JSON)
+Azure - ARM Templates (JSON)
+GCP - Deployment Manager (YAML)
+
+Terraform 
+---------
+Terraform is IaC tool developed by HashiCorp
+It let you define resource and infrastructure in human readable , declarative configuration file and manage your infrastructure lifecycle.
+It provides following advantages over the manual process of infrastructure management 
+	
+	-Terraform can manage infrastructure on multiple cloud platform
+	
+	-The human-readable configuration language helps you write the infrastructure code quickly
+		HashiCorp Configuration Lanaguge (HCL) - .tf files 
+		JSON - .tf.json files 
+		
+	-Terraform's state allows you to track resource changes throughout your deployment 
+	
+	-You can commit you configuration to version control system to safely collabrate on infrastructure
+	
+Block Syntax 
+------------
+
+block_type "label" "name_label"{
+
+	key="value"
+	key1="value1"
+	
+	nested_block{
+		key=value
+	}
+}
+
+resource "azurerm_storage_account" "mystorage"{
+	
+	name = "mydemostorageacc"
+	resource-group ="name of resource-group"
+	tier="Standard"
+}
+
+
+Terraform CLI - Download binary from the terraform site and extract it into a folder and set the folder path in the system path enviornment variable 
+
+set path ="C:\Terraform"
+
+Editor - Visual Studio Code 
+Extension - HashiCorp Terraform Extension 
+
+Azure CLI - CLI Tools to manager resource in the Azure Cloud 
+
+Azure Account
+
+Azure Providers
+---------------
+AzureRM 
+AzureStack
+Azure Active Directory  
+
+Authetication 
+--------------
+Azure CLI - az login 
+Managed Service Identity 
+Service Principle with client secret
+Service Principle with client certificate 
+
+ARM_CLIENT_ID # Service Principle ID
+
+ARM_CLIENT_SECRET #serviice principle secret
+
+ARM_ENVIORNMENT #Azure enviornment: public ,gov, sovergien cloud regions
+
+ARM_SUBSCRIPTION_ID #Azure Subscription Id
+
+ARM_TENANT_ID #Azure AD tenant Id
+
+ARM_USE_MSI #Use Managed Service Identity
+
+Terraform Workflow
+------------------
+
+init -> validate -> plan -> apply -> destroy
+
+terraform init 
+--------------
+It is used to initialize a working directory containing terraform configuration file
+Download the required provider binary in the working directory 
+
+terraform validate 
+------------------
+validates the terraform configuration files in the respective directory to that they are syntantically valid and internally consistent
+
+terraform plan
+--------------
+Create a execution plan
+It performs a refresh and determine what actions are necessary to achieve the desired state specified in the configuration file 
+
+terraform plan -out "plan1.tfplan"
+
+az login --use-device-code
+
+terrform apply 
+--------------
+It is used to apply the changes required to reach the desired state of the configuration
+By default apply scans the current directory for the configuration and applies the changes appropriately 
+
+	terraform apply --> yes 
+	
+	terraform apply -auto-approve
+	
+	terraform apply "plan1.tfplan" -auto-approve
+	
+terraform destroy
+-----------------
+It used to destroy the terraform managed infrastructure
+
+
+az logout
+
+az login 
+
+az login --use-device-code
+
+Variables and Data Types 
+------------------------
+
+Variables 
+---------
+Input Variables - Serve as parameters for a Terraform module , so user can customize behaviour without editing source config file
+
+The input variable can created in the main.tf(file containing the actual config) or we can manage the variable in sperate file(variable.tf)
+
+variable "name_label" {
+
+	type=value #data type of the variable
+	description ="value" #describe the variable
+	default = value #contains value to refered by the variable 
+	sensitive = true | false
+
+}
+
+eg:- 
+
+variable "storage_resource_group" {
+	
+	type=string
+	description="Resource group for creating storage account"
+	default ="terraform-training-rg"
+}
+
+var.<name_label>
+
+var.storage_resource_group
+var.storage_region
+
+Terraform Data Type 
+-------------------
+Primitive 
+	String 
+	number
+	boolean 
+	
+Collection 
+	List
+	Set
+	Map
+	
+List 
+----
+[1,2,3,4] - Valid list of numbers
+["East Us","West US","East Asia"]
+
+[1,"East US",true] #Invalid List
+
+Map
+---
+{
+	server1 ="Windows Server 2012"
+	server2 ="Windows Server 2022"
+	server3 ="Ubuntu Server 22.04"
+}
+
+var.servers.server1 or var.servers["server1"]
+
+Local Variables or Values :- are a convenience for assigning a short name to an expression
+
+A local value assigns a name to an expression so you can use the name multiple times with a module or config instead of repeating the expression
+
+locals {
+	prefix="ct"
+	
+	common_tags={
+		env = "prod",
+		version="2.0",
+		company="ct"
+	}
+}
+
+local.<name_label>
+
+Output Variables :- It makes information about your infrastructure available on the command line and can expose information from other Terraform Configuration to use 
+
+output "name_label" {
+
+	value=output_value
+	description="Description of Output"
+	sensitive=true|false
+}
+
+output "storage1_name" {
+	
+	value=azurerm_storage_account.demostorage
+	description="Storage account details"
+}
+
+git clone https://github.com/vijayvct/azure-terraform-demo
+
+44.0.0.0/16
+
+172.168.0.0/16
+
+project 1 = 10.0.0.0/16
+project 2 = 30.0.0.0/16
+project 3 = 44.1.0.0/16
+
+.tfvars files - helps us to provide values to the variable that we are using the configuration files 
+
+By default , we can use the terraform.tfvars file to provide values for all the variable that we are using the configuration files 
+
+Managing Remote State files 
+Module 
+
+State 
+-----
+Terraform uses state which stores the information about your managed infrastructure and configuration
+This state is used by Terraform to map real world resources to your cofiguration , keeps track of metadata  and to improve performance of large infrastructure
+
+This state is stored by default in a local file name "terraform.tfstate"
+When you are working in a team , the state file can be stored in a remote
+	-Terraform Cloud 
+	-Amazon S3
+	-Azure Blob Storage 
+	-Google Cloud Storage 
+	-Alibaba Cloud 
+	
+Module 
+------
+Module are self-contained package of Terraform Configuration that are managed as a group
+
+Virtual Machine (Server)
+	-Some Image 
+	-Disk or Storage 
+	-VNet 
+	-Ip Address 
+	
+Built-In Module 
+Custom Module 
+
+ModuleDemo2 - Root Module 
+		main.tf
+		variables.tf
+		outputs.tf
+		
+		ResourceGroup 
+			main.tf
+			variables.tf
+			outputs.tf
+		StorageAccount 
+			main.tf
+			variables.tf
+			outputs.tf
